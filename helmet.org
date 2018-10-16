@@ -1,0 +1,8 @@
+* Helmet is a wearable computer that approximates a lisp machine
+
+* Archetecture
+** Server
+*** udp 
+*** just send text to display
+** Client
+*** just print the text sent via udp
