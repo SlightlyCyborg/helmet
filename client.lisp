@@ -17,15 +17,5 @@
   (socket-send *socket* string nil :address `(,*address* ,*port*) ))
 
 
-(defun println-to-helmet (string)
-  (let ((sock-stream (socket-make-stream
-		 *socket*
-		 :output t
-		 :buffering :none)))
-    (format sock-stream "~a~C" string #\linefeed)
-    (force-output sock-stream)))
-
-
-
 (defun clear-helmet ()
-  (println-to-helmet (format nil "~A[H~@*~A[J" #\escape)))
+  (print-to-helmet (format nil "~A[H~@*~A[J" #\escape)))

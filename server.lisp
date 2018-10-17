@@ -1,36 +1,30 @@
-
+(ql:quickload :usocket)
 (defpackage :helmet
-  (:use :cl :sb-bsd-sockets))
+  (:use :cl :usocket))
 
 (in-package :helmet)
 
 
-(defun udp ()
-  (make-instance
-   'inet-socket :type :datagram :protocol :udp))
-
-
 (defvar *all-ips* #(0 0 0 0))
 (defvar *app-port* 4242)
-(defparameter *socket* (udp))
 (defvar *print-thread* nil)
+(defvar *socket* nil)
 
 (defun start ()
-  (socket-bind *socket* *all-ips* *app-port*)
-  (spawn-print-loop))
+  (setf
+   *socket*
+   (socket-connect nil nil 
+		   :local-port *app-port*
+		   :protocol :datagram))
+  (start-print-loop))
 
-(defun spawn-print-loop ()
-  (let ((sock-stream (socket-make-stream
-		 *socket*
-		 :input t
-		 :buffering :none))
-	(top-level *standard-output*))
-    (setf *print-thread*
-	  (sb-thread:make-thread
-	   #'(lambda ()
-	       (loop do
-		 (format top-level 
-			 "~@[~C~]" (read-char sock-stream))))))))
+(defun start-print-loop ()
+  (loop do
+    (format t "~a" (map 'string #'code-char
+			(remove-if
+			 #'zerop
+			 (socket-receive *socket* nil 5200))))
+    (finish-output *standard-output*)))
 
 (start)
 
